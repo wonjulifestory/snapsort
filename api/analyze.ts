@@ -90,10 +90,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  // Authentication: require app token
-  const token = req.headers["x-app-token"];
-  if (!APP_API_TOKEN || token !== APP_API_TOKEN) {
-    return res.status(401).json({ error: "Unauthorized" });
+  // Authentication: require app token (skip if not configured)
+  if (APP_API_TOKEN) {
+    const token = req.headers["x-app-token"];
+    if (token !== APP_API_TOKEN) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
   }
 
   if (!GEMINI_API_KEY) {

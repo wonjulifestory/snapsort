@@ -36,8 +36,11 @@ export default function InboxView() {
     loadItems();
   }, [loadItems]);
 
+  const [analyzeError, setAnalyzeError] = useState<string | null>(null);
+
   const analyzeOne = async (item: CaptureItem) => {
     if (!item.id) return;
+    setAnalyzeError(null);
     try {
       await updateCapture(item.id, { state: 'processing' });
       await loadItems();
@@ -53,7 +56,9 @@ export default function InboxView() {
         confidence: result.confidence,
       });
     } catch (err) {
-      console.error('분석 실패:', err);
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error('분석 실패:', msg);
+      setAnalyzeError(msg);
       if (item.id) {
         await updateCapture(item.id, { state: 'failed' });
       }
@@ -137,6 +142,13 @@ export default function InboxView() {
             <>전체 분석 ({importedCount}건)</>
           )}
         </button>
+      )}
+
+      {/* 분석 에러 표시 */}
+      {analyzeError && (
+        <div className="mb-3 p-3 bg-red-50 rounded-xl text-xs text-red-600">
+          분석 실패: {analyzeError}
+        </div>
       )}
 
       {/* 캡처 목록 */}
