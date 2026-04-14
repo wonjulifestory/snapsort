@@ -38,9 +38,3 @@ class CaptureDatabase extends Dexie {
 }
 
 export const db = new CaptureDatabase();
-
-// DB 열기 실패 시 자동 리셋
-db.open().catch(async () => {
-  await Dexie.delete('sns-capture-db');
-  window.location.reload();
-});

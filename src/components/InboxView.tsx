@@ -92,17 +92,8 @@ export default function InboxView({ onImportClick: _onImportClick }: InboxViewPr
     await loadItems();
   };
 
-  const importedCount = items.filter((i) => i.state === 'imported').length;
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-spin w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full" />
-      </div>
-    );
-  }
-
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const importedCount = items.filter((i) => i.state === 'imported').length;
 
   const handleDirectImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
@@ -114,6 +105,14 @@ export default function InboxView({ onImportClick: _onImportClick }: InboxViewPr
     e.target.value = '';
     await loadItems();
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="animate-spin w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full" />
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (
