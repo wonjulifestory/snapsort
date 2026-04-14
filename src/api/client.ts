@@ -85,11 +85,9 @@ export async function analyzeScreenshots(
       });
 
       if (!response.ok) {
-        const body = await response.json().catch(() => ({}));
-        throw new Error(
-          (body as { error?: string }).error ??
-            `Request failed with status ${response.status}`,
-        );
+        const body = await response.json().catch(() => ({})) as { error?: string; rawPreview?: string };
+        const msg = body.error ?? `Request failed with status ${response.status}`;
+        throw new Error(body.rawPreview ? `${msg} [${body.rawPreview.substring(0, 100)}]` : msg);
       }
 
       return (await response.json()) as AnalysisResult;

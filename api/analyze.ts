@@ -130,7 +130,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Parse and validate JSON response
     const jsonString = rawText.replace(/```json\s*|```\s*/g, "").trim();
-    const parsed: unknown = JSON.parse(jsonString);
+
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(jsonString);
+    } catch {
+      // JSON 파싱 실패 시 원본 텍스트 반환
+      return res.status(502).json({
+        error: "AI 응답을 파싱할 수 없습니다",
+        rawPreview: rawText.substring(0, 300),
+      });
+    }
 
     if (!isAnalysisResult(parsed)) {
       return res.status(502).json({ error: "AI 응답 형식이 올바르지 않습니다" });
@@ -139,10 +149,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).json(parsed);
   } catch (error) {
     console.error("analyze error:", error);
-
-    if (error instanceof SyntaxError) {
-      return res.status(502).json({ error: "AI 응답을 파싱할 수 없습니다" });
-    }
 
     const message = error instanceof Error ? error.message : "Internal server error";
     if (message.includes("Invalid image") || message.includes("too large")) {
