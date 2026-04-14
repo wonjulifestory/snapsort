@@ -23,7 +23,7 @@ function blobToBase64(blob: Blob): Promise<string> {
 
 // 이미지를 최대 1200px 너비로 리사이즈 + JPEG 압축 (API 전송 최적화)
 async function resizeForApi(blob: Blob): Promise<Blob> {
-  const MAX_WIDTH = 1200;
+  const MAX_WIDTH = 800; // 더 작게 = 더 빠른 전송
   try {
     const bitmap = await createImageBitmap(blob);
     if (bitmap.width <= MAX_WIDTH) {
@@ -44,7 +44,7 @@ async function resizeForApi(blob: Blob): Promise<Blob> {
       canvas.toBlob(
         (b) => resolve(b ?? blob),
         'image/jpeg',
-        0.85
+        0.6 // 낮은 품질 = 더 빠른 전송, OCR에는 충분
       );
     });
   } catch {
