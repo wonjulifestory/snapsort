@@ -21,6 +21,37 @@ function blobToBase64(blob: Blob): Promise<string> {
   });
 }
 
+// 이미지를 최대 1200px 너비로 리사이즈 + JPEG 압축 (API 전송 최적화)
+async function resizeForApi(blob: Blob): Promise<Blob> {
+  const MAX_WIDTH = 1200;
+  try {
+    const bitmap = await createImageBitmap(blob);
+    if (bitmap.width <= MAX_WIDTH) {
+      bitmap.close();
+      return blob; // 이미 작으면 그대로
+    }
+    const scale = MAX_WIDTH / bitmap.width;
+    const w = MAX_WIDTH;
+    const h = Math.round(bitmap.height * scale);
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) { bitmap.close(); return blob; }
+    ctx.drawImage(bitmap, 0, 0, w, h);
+    bitmap.close();
+    return new Promise<Blob>((resolve) => {
+      canvas.toBlob(
+        (b) => resolve(b ?? blob),
+        'image/jpeg',
+        0.85
+      );
+    });
+  } catch {
+    return blob; // 리사이즈 실패 시 원본
+  }
+}
+
 async function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -32,8 +63,9 @@ export async function analyzeScreenshots(
     throw new Error("At least one image is required");
   }
 
-  // Convert blobs to base64
-  const base64Images = await Promise.all(images.map(blobToBase64));
+  // Resize and convert to base64
+  const resized = await Promise.all(images.map(resizeForApi));
+  const base64Images = await Promise.all(resized.map(blobToBase64));
 
   let lastError: Error | null = null;
 
