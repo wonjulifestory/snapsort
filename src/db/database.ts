@@ -31,15 +31,16 @@ class CaptureDatabase extends Dexie {
   constructor() {
     super('sns-capture-db');
 
-    this.version(1).stores({
-      captures: '++id, imageHash, state, sourceApp, createdAt, groupId, *tags',
-    });
-
-    // v2: imageHash를 유니크 인덱스로 변경
-    this.version(2).stores({
+    this.version(3).stores({
       captures: '++id, &imageHash, state, sourceApp, createdAt, groupId, *tags',
     });
   }
 }
 
 export const db = new CaptureDatabase();
+
+// DB 열기 실패 시 자동 리셋
+db.open().catch(async () => {
+  await Dexie.delete('sns-capture-db');
+  window.location.reload();
+});
