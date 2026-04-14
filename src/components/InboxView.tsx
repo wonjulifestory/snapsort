@@ -23,13 +23,7 @@ export default function InboxView({ onImportClick: _onImportClick }: InboxViewPr
     try {
       const data = await getInbox();
       setItems(data);
-      if (data.length === 0) {
-        const { db } = await import('../db/database');
-        const all = await db.captures.toArray();
-        const total = all.length;
-        const states = all.map(i => `${i.id}:${i.state}`).join(', ');
-        setError(`인박스 0건, DB 전체 ${total}건, states=[${states}]`);
-      }
+      setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
