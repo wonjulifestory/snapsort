@@ -63,12 +63,11 @@ function setCors(req: VercelRequest, res: VercelResponse) {
 }
 
 function parseDataUri(input: string): { mimeType: string; data: string } {
-  const match = input.match(
-    /^data:(image\/[a-zA-Z0-9.+-]+);base64,([A-Za-z0-9+/=\s]+)$/
-  );
-  if (!match) throw new Error("Invalid image data URI");
+  const prefixMatch = input.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,/);
+  if (!prefixMatch) throw new Error("Invalid image data URI");
 
-  const [, mimeType, data] = match;
+  const mimeType = prefixMatch[1];
+  const data = input.slice(prefixMatch[0].length);
   const sizeEstimate = Math.ceil((data.length * 3) / 4);
   if (sizeEstimate > MAX_IMAGE_BYTES) throw new Error("Image too large (max 5MB)");
 
@@ -90,13 +89,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  // Authentication: require app token (skip if not configured)
-  if (APP_API_TOKEN) {
-    const token = req.headers["x-app-token"];
-    if (token !== APP_API_TOKEN) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-  }
+  // 개인용 앱 - 인증 생략
 
   if (!GEMINI_API_KEY) {
     return res.status(500).json({ error: "Server configuration error" });

@@ -10,13 +10,13 @@ export default function Header({ onImportClick }: HeaderProps) {
       </h1>
       <button
         onClick={onImportClick}
-        className="flex items-center justify-center w-9 h-9 rounded-full bg-blue-500 text-white hover:bg-blue-600 active:bg-blue-700 transition-colors"
+        className="flex items-center justify-center w-11 h-11 rounded-full bg-blue-500 text-white hover:bg-blue-600 active:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg active:scale-95"
         aria-label="사진 가져오기"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
+          width="22"
+          height="22"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"

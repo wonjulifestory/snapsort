@@ -7,7 +7,9 @@ import SavedView from './components/SavedView';
 import SearchView from './components/SearchView';
 import SettingsView from './components/SettingsView';
 
-const tabViews: Record<TabId, () => ReactNode> = {
+type TabViewComponent = (props: { onImportClick?: () => void }) => ReactNode;
+
+const tabViews: Record<TabId, TabViewComponent> = {
   inbox: InboxView,
   saved: SavedView,
   search: SearchView,
@@ -32,7 +34,7 @@ export default function App() {
       <Header onImportClick={() => setImportOpen(true)} />
 
       <main className="flex-1 overflow-y-auto pt-14 pb-16">
-        <ActiveView key={refreshKey} />
+        <ActiveView key={refreshKey} onImportClick={() => setImportOpen(true)} />
       </main>
 
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />

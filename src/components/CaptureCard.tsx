@@ -29,9 +29,21 @@ export default function CaptureCard({ item, onTap, onConfirm, onRetry, onDelete 
 
   return (
     <article
-      className="flex gap-3 p-3 bg-white rounded-xl border border-gray-100 shadow-sm active:bg-gray-50 transition-colors cursor-pointer"
+      className="relative flex gap-3 p-3 bg-white rounded-xl border border-gray-100 shadow-sm active:bg-gray-50 transition-colors duration-200 cursor-pointer group"
       onClick={() => onTap?.(item)}
     >
+      {/* X 삭제 버튼 - 항상 표시 */}
+      <button
+        onClick={(e) => { e.stopPropagation(); onDelete?.(item); }}
+        className="absolute top-1.5 right-1.5 flex items-center justify-center w-7 h-7 min-w-[44px] min-h-[44px] text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors duration-200 z-10"
+        aria-label="삭제"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+
       {/* 썸네일 */}
       {thumbUrl ? (
         <img
@@ -50,7 +62,7 @@ export default function CaptureCard({ item, onTap, onConfirm, onRetry, onDelete 
       )}
 
       {/* 내용 */}
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 pr-5">
         {/* 요약 텍스트 2줄 말줄임 */}
         <p className="text-sm text-gray-900 line-clamp-2 leading-snug">
           {summaryText || '(내용 없음)'}
@@ -98,7 +110,7 @@ export default function CaptureCard({ item, onTap, onConfirm, onRetry, onDelete 
               <span className="text-[11px] text-green-600 font-medium">분석 완료</span>
               <button
                 onClick={(e) => { e.stopPropagation(); onConfirm?.(item); }}
-                className="px-2.5 py-1 text-[11px] font-medium bg-blue-500 text-white rounded-lg hover:bg-blue-600 active:bg-blue-700 transition-colors"
+                className="px-2.5 py-1 min-h-[44px] text-[11px] font-medium bg-blue-500 text-white rounded-lg hover:bg-blue-600 active:bg-blue-700 transition-colors"
               >
                 확인
               </button>
@@ -119,15 +131,9 @@ export default function CaptureCard({ item, onTap, onConfirm, onRetry, onDelete 
               <span className="text-[11px] text-red-500 font-medium">실패</span>
               <button
                 onClick={(e) => { e.stopPropagation(); onRetry?.(item); }}
-                className="px-2.5 py-1 text-[11px] font-medium bg-red-50 text-red-600 rounded-lg hover:bg-red-100 active:bg-red-200 transition-colors"
+                className="px-2.5 py-1 min-h-[44px] text-[11px] font-medium bg-red-50 text-red-600 rounded-lg hover:bg-red-100 active:bg-red-200 transition-colors"
               >
                 재시도
-              </button>
-              <button
-                onClick={(e) => { e.stopPropagation(); onDelete?.(item); }}
-                className="px-2.5 py-1 text-[11px] font-medium bg-gray-50 text-gray-500 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                삭제
               </button>
             </div>
           )}
