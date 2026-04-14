@@ -13,19 +13,8 @@ const ALLOWED_ORIGINS = new Set([
   "http://localhost:5173",
 ]);
 
-const PROMPT = `이 SNS 스크린샷에서 핵심 정보만 추출해주세요. 상태바, 네비게이션, 프로필 사진, 좋아요/댓글 수, 광고 등 UI 요소는 무시하세요.
-
-여러 장의 이미지가 제공된 경우, 같은 글의 연속된 스크린샷인지 판단하세요. 같은 글이면 내용을 합쳐서 하나의 결과로 반환하세요.
-
-다음 JSON 형식으로만 응답하세요 (마크다운 코드블록 없이 순수 JSON만):
-{
-  "raw_text": "이미지에서 읽은 전체 텍스트",
-  "cleaned_text": "UI 잡음을 제거한 핵심 정보 텍스트",
-  "summary": "2~3줄 요약",
-  "tags": ["태그1", "태그2"],
-  "source_app": "쓰레드/페이스북/인스타그램/X/기타",
-  "confidence": 0.0
-}`;
+const PROMPT = `SNS 스크린샷에서 핵심만 추출. UI요소(상태바,네비,프로필,좋아요,광고) 무시. 여러장이면 합쳐서 하나로. 간결하게 응답. 순수 JSON만:
+{"raw_text":"전체텍스트","cleaned_text":"핵심만","summary":"1~2줄요약","tags":["태그"],"source_app":"쓰레드/페이스북/인스타/X/기타","confidence":0.9}`;
 
 interface AnalysisResult {
   raw_text: string;
@@ -124,7 +113,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         contents: [{ parts }],
         generationConfig: {
           temperature: 0.1,
-          maxOutputTokens: 1024,
+          maxOutputTokens: 2048,
         },
       }),
     });
