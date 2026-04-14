@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <rect width="512" height="512" rx="80" fill="#3B82F6"/>
+  <!-- 카메라 본체 -->
+  <rect x="106" y="180" width="300" height="214" rx="32" fill="white"/>
+  <!-- 카메라 상단 -->
+  <path d="M192 180v-32a20 20 0 0 1 20-20h88a20 20 0 0 1 20 20v32" fill="white"/>
+  <!-- 렌즈 -->
+  <circle cx="256" cy="287" r="64" stroke="#3B82F6" stroke-width="14" fill="none"/>
+  <circle cx="256" cy="287" r="32" fill="#3B82F6"/>
+  <!-- 문서 아이콘 (우하단) -->
+  <rect x="320" y="300" width="106" height="140" rx="16" fill="white" stroke="#3B82F6" stroke-width="7"/>
+  <line x1="346" y1="342" x2="400" y2="342" stroke="#3B82F6" stroke-width="6" stroke-linecap="round"/>
+  <line x1="346" y1="368" x2="400" y2="368" stroke="#3B82F6" stroke-width="6" stroke-linecap="round"/>
+  <line x1="346" y1="394" x2="382" y2="394" stroke="#3B82F6" stroke-width="6" stroke-linecap="round"/>
+</svg>
