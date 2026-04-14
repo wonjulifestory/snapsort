@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CaptureItem } from '../db/database';
 import { db } from '../db/database';
 import { getInbox, updateCapture } from '../db/helpers';
@@ -10,7 +10,8 @@ interface InboxViewProps {
   onImportClick?: () => void;
 }
 
-export default function InboxView({ onImportClick }: InboxViewProps) {
+export default function InboxView({ onImportClick: _onImportClick }: InboxViewProps) {
+  void _onImportClick;
   const [items, setItems] = useState<CaptureItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
@@ -107,11 +108,24 @@ export default function InboxView({ onImportClick }: InboxViewProps) {
     );
   }
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleDirectImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    for (const file of files) {
+      try {
+        await (await import('../db/helpers')).addCapture(file);
+      } catch { /* 중복 등 무시 */ }
+    }
+    e.target.value = '';
+    await loadItems();
+  };
+
   if (items.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-gray-400 px-6">
         <button
-          onClick={onImportClick}
+          onClick={() => fileInputRef.current?.click()}
           className="flex items-center justify-center w-20 h-20 rounded-full bg-blue-500 text-white shadow-lg hover:bg-blue-600 active:bg-blue-700 active:scale-95 transition-all duration-200 mb-4"
           aria-label="사진 추가"
         >
@@ -120,9 +134,17 @@ export default function InboxView({ onImportClick }: InboxViewProps) {
             <line x1="5" y1="12" x2="19" y2="12" />
           </svg>
         </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={handleDirectImport}
+          className="hidden"
+        />
         <p className="text-base font-semibold text-gray-600">사진을 추가해보세요</p>
         <p className="mt-1 text-sm text-gray-400 text-center">
-          스크린샷을 가져와서 분석을 시작하세요
+          탭하면 바로 사진을 선택할 수 있어요
         </p>
         {error && (
           <p className="mt-2 text-xs text-red-400">{error}</p>
