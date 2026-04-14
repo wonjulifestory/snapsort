@@ -3,7 +3,7 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const APP_API_TOKEN = process.env.APP_API_TOKEN;
 const GEMINI_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent";
 
 const MAX_IMAGES = 10;
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5MB per image

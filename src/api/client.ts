@@ -8,9 +8,6 @@ export interface AnalysisResult {
 }
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? "";
-const APP_API_TOKEN = import.meta.env.VITE_APP_API_TOKEN ?? "";
-const MAX_RETRIES = 2;
-const RETRY_DELAY_MS = 1000;
 
 function blobToBase64(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -23,7 +20,7 @@ function blobToBase64(blob: Blob): Promise<string> {
 
 // 이미지를 최대 1200px 너비로 리사이즈 + JPEG 압축 (API 전송 최적화)
 async function resizeForApi(blob: Blob): Promise<Blob> {
-  const MAX_WIDTH = 800; // 더 작게 = 더 빠른 전송
+  const MAX_WIDTH = 600; // 작을수록 빠름, OCR에는 충분
   try {
     const bitmap = await createImageBitmap(blob);
     if (bitmap.width <= MAX_WIDTH) {
@@ -44,16 +41,12 @@ async function resizeForApi(blob: Blob): Promise<Blob> {
       canvas.toBlob(
         (b) => resolve(b ?? blob),
         'image/jpeg',
-        0.6 // 낮은 품질 = 더 빠른 전송, OCR에는 충분
+        0.4 // 낮은 품질 = 빠른 전송, OCR에는 충분
       );
     });
   } catch {
     return blob; // 리사이즈 실패 시 원본
   }
-}
-
-async function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export async function analyzeScreenshots(
@@ -63,47 +56,20 @@ export async function analyzeScreenshots(
     throw new Error("At least one image is required");
   }
 
-  // Resize and convert to base64
   const resized = await Promise.all(images.map(resizeForApi));
   const base64Images = await Promise.all(resized.map(blobToBase64));
 
-  let lastError: Error | null = null;
+  const response = await fetch(`${API_BASE}/api/analyze`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ images: base64Images }),
+  });
 
-  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-    try {
-      if (attempt > 0) {
-        await sleep(RETRY_DELAY_MS * attempt);
-      }
-
-      const response = await fetch(`${API_BASE}/api/analyze`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-App-Token": APP_API_TOKEN,
-        },
-        body: JSON.stringify({ images: base64Images }),
-      });
-
-      if (!response.ok) {
-        const body = await response.json().catch(() => ({})) as { error?: string; rawPreview?: string };
-        const msg = body.error ?? `Request failed with status ${response.status}`;
-        throw new Error(body.rawPreview ? `${msg} [${body.rawPreview.substring(0, 100)}]` : msg);
-      }
-
-      return (await response.json()) as AnalysisResult;
-    } catch (error) {
-      lastError = error instanceof Error ? error : new Error(String(error));
-      console.warn(`Attempt ${attempt + 1} failed:`, lastError.message);
-
-      // Don't retry on client errors (4xx) or auth errors
-      if (
-        lastError.message.includes("Unauthorized") ||
-        lastError.message.includes("status 4")
-      ) {
-        break;
-      }
-    }
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({})) as { error?: string; rawPreview?: string };
+    const msg = body.error ?? `Request failed with status ${response.status}`;
+    throw new Error(body.rawPreview ? `${msg} [${body.rawPreview.substring(0, 100)}]` : msg);
   }
 
-  throw lastError ?? new Error("Analysis failed");
+  return (await response.json()) as AnalysisResult;
 }
