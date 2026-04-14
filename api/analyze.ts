@@ -114,6 +114,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         generationConfig: {
           temperature: 0.1,
           maxOutputTokens: 2048,
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: "object",
+            properties: {
+              raw_text: { type: "string" },
+              cleaned_text: { type: "string" },
+              summary: { type: "string" },
+              tags: { type: "array", items: { type: "string" } },
+              source_app: { type: "string" },
+              confidence: { type: "number" },
+            },
+            required: ["raw_text", "cleaned_text", "summary", "tags", "source_app", "confidence"],
+          },
         },
       }),
     });
@@ -135,11 +148,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     try {
       parsed = JSON.parse(jsonString);
     } catch {
-      // JSON 파싱 실패 시 원본 텍스트 반환
-      return res.status(502).json({
-        error: "AI 응답을 파싱할 수 없습니다",
-        rawPreview: rawText.substring(0, 300),
-      });
+      // 폴백: 텍스트에서 JSON 객체 추출 시도
+      const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        try {
+          parsed = JSON.parse(jsonMatch[0]);
+        } catch {
+          return res.status(502).json({
+            error: "AI 응답을 파싱할 수 없습니다",
+            rawPreview: rawText.substring(0, 300),
+          });
+        }
+      } else {
+        return res.status(502).json({
+          error: "AI 응답을 파싱할 수 없습니다",
+          rawPreview: rawText.substring(0, 300),
+        });
+      }
     }
 
     if (!isAnalysisResult(parsed)) {
