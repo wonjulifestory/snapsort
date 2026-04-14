@@ -17,6 +17,13 @@ const tabViews: Record<TabId, () => ReactNode> = {
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabId>('inbox');
   const [importOpen, setImportOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleImportClose = () => {
+    setImportOpen(false);
+    setRefreshKey((k) => k + 1); // 인박스 새로고침 트리거
+    setActiveTab('inbox'); // 인박스 탭으로 이동
+  };
 
   const ActiveView = tabViews[activeTab];
 
@@ -24,14 +31,13 @@ export default function App() {
     <div className="flex flex-col h-dvh bg-gray-50">
       <Header onImportClick={() => setImportOpen(true)} />
 
-      {/* Main content area between header and bottom nav */}
       <main className="flex-1 overflow-y-auto pt-14 pb-16">
-        <ActiveView />
+        <ActiveView key={refreshKey} />
       </main>
 
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
 
-      <ImageImport open={importOpen} onClose={() => setImportOpen(false)} />
+      <ImageImport open={importOpen} onClose={handleImportClose} />
     </div>
   );
 }
