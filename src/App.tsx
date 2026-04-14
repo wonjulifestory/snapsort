@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import Header from './components/Header';
 import BottomNav, { type TabId } from './components/BottomNav';
 import ImageImport from './components/ImageImport';
@@ -7,7 +7,7 @@ import SavedView from './components/SavedView';
 import SearchView from './components/SearchView';
 import SettingsView from './components/SettingsView';
 
-const tabViews: Record<TabId, () => JSX.Element> = {
+const tabViews: Record<TabId, () => ReactNode> = {
   inbox: InboxView,
   saved: SavedView,
   search: SearchView,

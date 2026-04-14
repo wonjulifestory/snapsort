@@ -5,7 +5,9 @@ interface BottomNavProps {
   onTabChange: (tab: TabId) => void;
 }
 
-const tabs: { id: TabId; label: string; icon: JSX.Element }[] = [
+import type { ReactNode } from 'react';
+
+const tabs: { id: TabId; label: string; icon: ReactNode }[] = [
   {
     id: 'inbox',
     label: '인박스',

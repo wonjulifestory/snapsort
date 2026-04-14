@@ -9,7 +9,6 @@ import {
 import { db } from '../db/database';
 import CaptureCard from './CaptureCard';
 import CaptureDetail from './CaptureDetail';
-import { downloadMarkdown, openInObsidian } from '../utils/export';
 
 type FilterType = 'all' | 'tag' | 'source' | 'date';
 
