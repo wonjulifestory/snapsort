@@ -25,3 +25,7 @@ dist-ssr
 
 .vercel
 .gstack/
+
+# Environment files, including examples, stay local.
+.env
+.env.*
